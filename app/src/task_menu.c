@@ -61,7 +61,13 @@
 
 /********************** internal data declaration ****************************/
 task_menu_dta_t task_menu_dta =
-	{DEL_MEN_XX_MIN, ST_MEN_XX_IDLE, EV_MEN_MEN_IDLE, false};
+	{DEL_MEN_XX_MIN, ST_MENU_MAIN, EV_MEN_MEN_IDLE, false, 1,1,1,0,1};
+
+task_motor_dta_t task_motor_dta_list[] = {
+	{1, OFF, 0, LEFT},
+	{2, OFF, 0, RIGHT},
+};
+
 
 #define MENU_DTA_QTY	(sizeof(task_menu_dta)/sizeof(task_menu_dta_t))
 
@@ -122,9 +128,15 @@ void task_menu_init(void *parameters)
 
 void task_menu_update(void *parameters)
 {
+	int i, j;
 	task_menu_dta_t *p_task_menu_dta;
+	task_motor_dta_t *p_task_motor_1_dta;
+	task_motor_dta_t *p_task_motor_2_dta;
+
 	bool b_time_update_required = false;
-	char menu_str[4];
+
+	//char menu_str[20];
+
 
 	/* Update Task Menu Counter */
 	g_task_menu_cnt++;
@@ -155,6 +167,9 @@ void task_menu_update(void *parameters)
 
     	/* Update Task Menu Data Pointer */
 		p_task_menu_dta = &task_menu_dta;
+		p_task_motor_1_dta = &task_motor_dta_list[0];
+		p_task_motor_2_dta = &task_motor_dta_list[1];
+
 
     	if (DEL_MEN_XX_MIN < p_task_menu_dta->tick)
 		{
@@ -162,11 +177,11 @@ void task_menu_update(void *parameters)
 		}
 		else
 		{
-			HAL_GPIO_TogglePin(LED_A_PORT, LED_A_PIN);
+			displayCharPositionWrite(0, j);
+			displayStringWrite("                                                                                ");
 
-			snprintf(menu_str, sizeof(menu_str), "%lu", (g_task_menu_cnt/1000ul));
-			displayCharPositionWrite(10, 1);
-			displayStringWrite(menu_str);
+
+
 
 			p_task_menu_dta->tick = DEL_MEN_XX_MAX;
 
@@ -197,6 +212,60 @@ void task_menu_update(void *parameters)
 					}
 
 					break;
+
+				case ST_MENU_MAIN:
+
+					displayCharPositionWrite(0, 0);
+					displayStringWrite("Motor 1: ON, 7, R");
+					displayCharPositionWrite(0, 1);
+					displayStringWrite("Motor 2: ON, 7, R");
+
+					if ((true == p_task_menu_dta->flag) && (EV_MEN_MEN_ACTIVE == p_task_menu_dta->event))
+					{
+						p_task_menu_dta->flag = false;
+						p_task_menu_dta->state = ST_MENU_1;
+
+					}
+
+					//Display Menu Main:
+
+
+
+					break;
+
+				case ST_MENU_1:
+
+					if ((true == p_task_menu_dta->flag) && (EV_MEN_ESC_ACTIVE == p_task_menu_dta->event))
+					{
+						p_task_menu_dta->flag = false;
+						p_task_menu_dta->state = ST_MENU_MAIN;
+					}
+
+					if ((true == p_task_menu_dta->flag) && (EV_MEN_ENT_ACTIVE == p_task_menu_dta->event))
+					{
+						p_task_menu_dta->flag = false;
+						p_task_menu_dta->state = ST_MENU_2;
+					}
+
+					if ((true == p_task_menu_dta->flag) && (EV_MEN_NEX_ACTIVE == p_task_menu_dta->event))
+					{
+						p_task_menu_dta->flag = false;
+						p_task_menu_dta->cursor_motor = (p_task_menu_dta->cursor_motor % 2) + 1;
+					}
+
+
+					//Display Menu #1:
+					displayCharPositionWrite(0, 0);
+					displayStringWrite("Enter/Next/Escape");
+					displayCharPositionWrite(2, 1);
+					displayStringWrite("Motor 1");
+					displayCharPositionWrite(2, 2);
+					displayStringWrite("Motor 2");
+					displayCharPositionWrite(0, p_task_menu_dta->cursor_motor);
+					displayStringWrite("> ");
+
+					break;
+
 
 				default:
 

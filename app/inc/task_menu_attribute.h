@@ -73,7 +73,17 @@ typedef enum task_menu_ev {EV_MEN_MEN_IDLE,
 
 /* State of Task Menu */
 typedef enum task_menu_st {ST_MEN_XX_IDLE,
-						   ST_MEN_XX_ACTIVE} task_menu_st_t;
+						   ST_MEN_XX_ACTIVE,
+						   ST_MENU_MAIN,
+						   ST_MENU_1,
+						   ST_MENU_2,
+						   ST_MENU_3_POWER,
+						   ST_MENU_3_SPEED,
+						   ST_MENU_3_SPIN} task_menu_st_t;
+
+typedef enum {ON,  OFF} task_motor_power_t;
+
+typedef enum {LEFT,  RIGHT} task_motor_spin_t;
 
 typedef struct
 {
@@ -81,10 +91,24 @@ typedef struct
 	task_menu_st_t	state;
 	task_menu_ev_t	event;
 	bool			flag;
+	uint8_t 		cursor_motor;
+	uint8_t 		cursor_task;
+	uint8_t 		cursor_power;
+	uint8_t 		cursor_speed;
+	uint8_t 		cursor_spin;
 } task_menu_dta_t;
+
+typedef struct
+{
+	uint8_t		motor_id;
+	task_motor_power_t	power;
+	uint8_t	speed;
+	task_motor_spin_t spin;
+} task_motor_dta_t;
 
 /********************** external data declaration ****************************/
 extern task_menu_dta_t task_menu_dta;
+//extern task_motor_dta_t task_motor_dta;
 
 /********************** external functions declaration ***********************/
 
