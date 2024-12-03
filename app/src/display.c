@@ -358,5 +358,10 @@ static void displayDataBusWrite( uint8_t dataBus )
     displayPinWrite( DISPLAY_PIN_EN, OFF );
     HAL_Delay(1);
 }
+
+void displayClear(void){
+	displayCodeWrite( DISPLAY_RS_INSTRUCTION,
+	                      DISPLAY_IR_CLEAR_DISPLAY );
+}
 /********************** end of file ******************************************/
 
